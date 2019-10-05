@@ -52,29 +52,102 @@ head(dat)
 ```
 
 ***
+``` {r q}
+
+
+```
 
 ### Assessment questions 
 
-(1) There are nine variables in the dataset. Select which variables you will consider for matching and justify your decision (10%)
+#####(1) There are nine variables in the dataset. Select which variables you will consider for matching and justify your decision (10%)
 
-(2) Using your chosen variables, match smokers to non-smokers using the matching specifications in (2a) and (2b). Briefly summarise the balance in both cases, drawing on appropriate numerical and graphical summaries.
+We would use mage (mother's age), gestat (length of gestation), male (baby's sex), collgrad (weather the mother is college educated), and black (whether the baby is black or not) to match because any of thouse factors could be confounders. Most obviously, length of gestation has an impact on bithweight and should be matched between smokers and non-smokers. 
+ 
+We don't use momid (mom id) and idx(index number of birth) to match because they are just random values assigned. They have no significance and each one is unique.
+Birthweight (birwt) is the outcome variable, so we do not want to match based on that; we want to see the difference in birthweight because of smoking. Smoke is the variable we want to compare, so we are matching to balance out possible confounders between smokers and non-smokers and is therefore the variable we are using the other above variables to match between.
 
-    (2a) 3:1 nearest-neighbour matching using the propensity score distance metric  (20%)  
-    (2b) Coarsened Exact Matching                                                   (20%)  
+#####(2) Using your chosen variables, match smokers to non-smokers using the matching specifications in (2a) and (2b). Briefly summarise the balance in both cases, drawing on appropriate numerical and graphical summaries.
+#####    (2a) 3:1 nearest-neighbour matching using the propensity score distance metric  (20%)
+``` {r 2a}
+library(MatchIt)
+match_propensity <- matchit(smoke ~ mage + gestat + male + collgrad + black, data=dat, method = "nearest", distance = "logit", ratio = 3)
+summary(match_propensity)
+plot(match_propensity, type="jitter")
+plot(match_propensity, type="hist")
+plot(match_propensity, type="QQ")
 
-(3) Fit the model birwt ~ smoke in 
+```
 
-    (3a) The raw data                                                     (5%)   
-    (3b) the matched data, using your preferred match from 2a/2b          (5%)  
 
-(4) Briefly describe the model results. How does the estimated effect for smoking change and why? (10%)
+#####    (2b) Coarsened Exact Matching   (20%)  
+``` {r 2b}
+match_cem <- matchit(smoke ~ mage + gestat + male + collgrad + black, data=dat, method = "cem")
+summary(match_cem)
+plot(match_cem, type="jitter")
+plot(match_cem, type="hist")
+plot(match_cem, type="QQ")
 
-(5) Briefly argue whether or not the assumption of exchangeability is likely to hold in the implicit causal model underpinning 3b. (10%)
+```
 
-(6) These data come from an observational study. Imagine the **exact same data** arose from a Randomised Control Trial where mothers were randomised to smoke or not smoke during pregnancy (ignore the obvious ethical issues of such a trial for the sake of this question).
+#***********
+Summary of the balanced data shows similar averages for propensity score matching catagories.
 
-    (6a) What can you observe about the randomisation process? (5%)   
-    (6b) How would the roll of background variables like mother's race and education change in the analysis, given that the data came from an RCT?  (15%)   
+mage: smoke:25,3, non:25.4  
+gestat: 39.5, 39.5  
+male: .5,.5  
+collgrad: .07,.07  
+black:.09,.11  
+
+
+Summary of the balanced data shows similar averages for coarse exact matching catagories.
+
+mage: smoke:25,2, non:25.2  
+gestat: 39.6, 39.6  
+male: .5,.5 
+collgrad: .08,.08  
+black:.07,.07  
+
+While averages match almost exactly between groups for the "CEM" matching, there are two things that make me think "propensity score"" matching is better to use.
+
+1) When looking at the QQ plots, the proprietary score matching has better eveness - the plots stay along the 45 degree angle better
+
+2) All of the smokers are matched, where "cem" removed 33 from the smoking data set.
+Because there are only 561 smokers, loosing 33 records could reflect a bias and does not seem to be neccesary in this case.
+
+#####(3) Fit the model birwt ~ smoke in 
+#####    (3a) The raw data   (5%)   
+``` {r 3a}
+mod_raw <- lm(birwt ~ smoke, data=dat)
+summary(mod_raw)
+
+```
+
+  
+
+#####    (3b) the matched data, using your preferred match from 2a/2b    (5%)  
+``` {r 3b}
+#turn match propensity into data
+match_prop.data <- match.data(match_propensity)
+
+mod_prop <- lm(birwt ~ smoke, data=match_prop.data, weight=weights)
+summary(mod_prop)
+
+```
+
+
+#####(4) Briefly describe the model results. How does the estimated effect for smoking change and why? (10%)
+The coefficient of smoking for the raw data is -289.76 and a p value very close to 0.  
+The coefficient of smoking for the matched data is -279.79 and also a p-value very close to 0.  
+This means that the matched data shows smoking has less of an effect than the raw data.
+This makes sense because we expect non-smokers to get further in gestation, as well as there being other confounders such as education which may correlate to nutrition and other unseen factors.
+
+Because some of these confounders correlate, if we wanted to see birthweight factoring that smoking leads to early gestation, we could try to match adjusting for the average difference in gestation period for smokers and non-smokers.
+
+#####(5) Briefly argue whether or not the assumption of exchangeability is likely to hold in the implicit causal model underpinning 3b. (10%)
+
+#####(6) These data come from an observational study. Imagine the **exact same data** arose from a Randomised Control Trial where mothers were randomised to smoke or not smoke during pregnancy (ignore the obvious ethical issues of such a trial for the sake of this question).
+#####    (6a) What can you observe about the randomisation process? (5%)   
+#####    (6b) How would the roll of background variables like mother's race and education change in the analysis, given that the data came from an RCT?  (15%)   
 
 ***
 
@@ -84,13 +157,13 @@ head(dat)
 
 I declare that this assessment item is my own work, except where acknowledged, and has not been submitted for academic credit elsewhere or previously, or produced independently of this course (e.g. for a third party such as your place of employment) and acknowledge that the assessor of this item may, for the purpose of assessing this item: (i) Reproduce this assessment item and provide a copy to another member of the University; and/or (ii) Communicate a copy of this assessment item to a plagiarism checking service (which may then retain a copy of the assessment item on its database for the purpose of future plagiarism checking).  
 
-- [ ] I understand and agree
+- [x] I understand and agree
 
 I certify that I have read and understood the University Rules in respect of Student Academic Misconduct.  
 
-- [ ] I understand and agree
+- [x] I understand and agree
 
 I have a backup copy of the assessment.  
 
-- [ ] I understand and agree
+- [x] I understand and agree
 
