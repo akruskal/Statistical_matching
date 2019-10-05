@@ -52,10 +52,6 @@ head(dat)
 ```
 
 ***
-``` {r q}
-
-
-```
 
 ### Assessment questions 
 
@@ -144,11 +140,22 @@ This makes sense because we expect non-smokers to get further in gestation, as w
 Because some of these confounders correlate, if we wanted to see birthweight factoring that smoking leads to early gestation, we could try to match adjusting for the average difference in gestation period for smokers and non-smokers.
 
 #####(5) Briefly argue whether or not the assumption of exchangeability is likely to hold in the implicit causal model underpinning 3b. (10%)
+Exchangeability is not likely to hold true because there are all kinds of factors that determine whether a person is going to become a smoker or not, like family history, region, mental health, etc,
+The model does limit some of the these issues with assigning smoking and non-smoking as random, but cannot fully disregard all the confounders and inherent bias because people who smoke during pregnancy have similarities that people that re non-smokers do not share and visa versa.
+
+To sum up, the matching model tries to diminish bias by matching people with similar features, but cannot eliminate that the assumption of exchangeability does not fully hold up.
 
 #####(6) These data come from an observational study. Imagine the **exact same data** arose from a Randomised Control Trial where mothers were randomised to smoke or not smoke during pregnancy (ignore the obvious ethical issues of such a trial for the sake of this question).
-#####    (6a) What can you observe about the randomisation process? (5%)   
-#####    (6b) How would the roll of background variables like mother's race and education change in the analysis, given that the data came from an RCT?  (15%)   
+#####    (6a) What can you observe about the randomisation process? (5%) 
+If the exact same data came, I would still want to match based on race, sex and education because the randomisation was not strarified in anyway causing big mismatches, but I would not want to match for gestation period because that is likely to be the affect of the smoking, not poor randomisation.
 
+#####    (6b) How would the roll of background variables like mother's race and education change in the analysis, given that the data came from an RCT?  (15%)   
+Like stated above, because the background variables were not stratified into the randomisation process, I would still want to analyse adjusting for the background features as well, but because it was randomly assigned, I could adjust for the effects those backround charecteristics have on birthweight knowing that the background feature did not affect whether they were smoking during pregnancy or not.  
+
+I could either stratify out the different background charecteristics and see between race, education, and age or weigh the outcome based on these charecteristics, which is doable because group selection was random and it is therefore more direct effects.
+
+I would personally like to see the results of the random trial from the raw data, then weighted based on differences for each group.  
+Then I would like to see stratified results comparing race, education, etc. to see impact on differect groups.  
 ***
 
 ### Student declaration
